@@ -25,27 +25,34 @@ public class PingPong extends Application {
             Background background = new Background(backgroundImage);
 
 
-            GridPane grid = new GridPane();
-            grid.setBackground(background);
+            /*GridPane grid = new GridPane();
+            grid.setBackground(background);*/
+            Pane pane = new Pane();
+            pane.setBackground(background);
 
-            Scene scene = new Scene(grid, 720, 480, Color.BLACK);
+            Scene scene = new Scene(pane, 720, 480, Color.BLACK);
 
-            Rectangle padPlayer = new Rectangle(190,100,25,100);
+            int padHeight = 100;
+            int padWidth = 25;
+            int padPlayerX = 50;
+            int padPlayerY = 190;
+            Rectangle padPlayer = new Rectangle(50, scene.getHeight()/2-padHeight/2, padWidth, padHeight);
             padPlayer.setFill(Color.BLUE);
 
-            Rectangle padComputer = new Rectangle(25,25,25,100);
+            int padComputerX = 645;
+            int padComputerY = 190;
+            Rectangle padComputer = new Rectangle(scene.getWidth()-50-padWidth, scene.getHeight()/2-padHeight/2, padWidth, padHeight);
             padComputer.setFill(Color.GREEN);
 
             Circle ball = new Circle(10);
+            ball.setCenterX(360);
+            ball.setCenterY(240);
             ball.setFill(Color.YELLOW);
 
-            ColumnConstraints column = new ColumnConstraints();
-            column.setPercentWidth(100);
-            column.setHgrow(Priority.ALWAYS);
+            pane.getChildren().add(padPlayer);
+            pane.getChildren().add(padComputer);
+            pane.getChildren().add(ball);
 
-            grid.add(padPlayer, 1, 0);
-            grid.add(padComputer, 1, 0);
-            grid.add(ball, 1, 0);
 
             primaryStage.setTitle("Ping Pong");
             primaryStage.setScene(scene);
