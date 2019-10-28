@@ -17,17 +17,13 @@ public class PingPong extends Application {
         private Image imageback = new Image("file:resources/background.jpg");
         int width = 720;
         int height = 480;
-        double ballXPosition = 360;
-        double ballYPosition = 240;
-        double padHeight = 100;
-        int padWidth = 10;
-        int padXPos = 25;
-        double padPlayerYPos = height/2 - padHeight/2;
-        double padCompYPos = height/2 - padHeight/2;
-        double ballXSpeed = 2;
-        double ballYSpeed = 1;
-        int ballRadius = 5;
         boolean gameStarted = false;
+
+
+        //initializing ball and pads objects
+        Ball ball = new Ball(2, 1, 5, 360, 240);
+        Pad playerPad = new Pad(100, 10, 25, height);
+        Pad compPad = new Pad(100, 10, width - 35, height);
 
         public static void main(String[] args) {
             launch(args);
@@ -57,12 +53,13 @@ public class PingPong extends Application {
 
             //animating padPlayer move
             canvas.setOnMouseMoved(e ->  {
-                if(e.getY() < (canvas.getHeight() - padHeight))  padPlayerYPos  = e.getY();
-                else padPlayerYPos = canvas.getHeight() - padHeight;
+                if(e.getY() < (canvas.getHeight() - playerPad.padHeight))  playerPad.padYPos  = e.getY();
+                else playerPad.padYPos = canvas.getHeight() - playerPad.padHeight;
             });
 
             //click on start
             canvas.setOnMouseClicked(e ->  gameStarted = true);
+            System.out.println(gameStarted);
         }
 
         private void run(GraphicsContext gc) {
@@ -71,44 +68,31 @@ public class PingPong extends Application {
             //setting all shapes color
             gc.setFill(Color.WHITE);
             //drawing pads
-            gc.fillRect(padXPos, padPlayerYPos, padWidth, padHeight);
-            gc.fillRect(width - padXPos - padWidth, padCompYPos, padWidth, padHeight);
+            gc.fillRect(playerPad.padXPos, playerPad.padYPos, playerPad.padWidth, playerPad.padHeight);
+            gc.fillRect(compPad.padXPos, compPad.padYPos, compPad.padWidth, compPad.padHeight);
+
             //drawing a ball
-            if(gameStarted) gc.fillOval(ballXPosition += ballXSpeed,ballYPosition +=ballYSpeed, ballRadius*2, ballRadius*2);
+            if(gameStarted) gc.fillOval(ball.ballXPosition += ball.ballXSpeed, ball.ballYPosition += ball.ballYSpeed, ball.ballRadius*2, ball.ballRadius*2);
             else {
                 //starting position of ball
-                ballXPosition = 360;
-                ballYPosition = 240;
+                ball.ballXPosition = 360;
+                ball.ballYPosition = 240;
             }
 
             //checking for collisions
-            //1. collision with pads
-            if((ballYPosition >= padPlayerYPos && ballYPosition <= padPlayerYPos + padHeight) || (ballYPosition >= padCompYPos && ballYPosition <= padCompYPos + padHeight))
-            {
-                if (ballXPosition < (padXPos + padWidth) || ballXPosition + ballRadius * 2 > (width - (padXPos + padWidth))) {
-                    ballXSpeed = -ballXSpeed;
-                    //ballYSpeed = -ballYSpeed;
-                }
-            }
+            //1. collision with player pad
+            ball.ballXSpeed = ball.padPlayerCollision(playerPad.padXPos, playerPad.padYPos, playerPad.padWidth, playerPad.padHeight);
+
+            //1A collision with comp pad
+            ball.ballXSpeed = ball.padCompCollision(compPad.padXPos, compPad.padYPos, compPad.padHeight);
+
             //2. collision with up and down edge of scene
-            if(ballXPosition >= 0 && ballXPosition <= width - ballRadius * 2) {
-                if(ballYPosition <= 0 || ballYPosition >= height - ballRadius * 2) ballYSpeed = -ballYSpeed;
-            } else
+            ball.ballYSpeed = ball.sceneTopBottomEdgesCollision(height);
+
             //3. collision with right and left edge of scene
-            gameStarted = false;
+            if(gameStarted) gameStarted = ball.sceneLeftRightEdgesCollision(ball.ballXPosition, width, gameStarted);
 
             //simple AI for padComputer
-            //padCompYPos = padPlayerYPos;
-            if(gameStarted) {
-                if(ballYPosition < height - padHeight) {
-                    if (padCompYPos - ballYPosition > 200) padCompYPos -= 2;
-                    else if (padCompYPos - ballYPosition > 0) padCompYPos -= 4;
-                    else if (padCompYPos - ballYPosition < -200) padCompYPos += 2;
-                    else if (padCompYPos - ballYPosition < 0) padCompYPos += 4;
-                }
-            }
-
-
-
+            if(gameStarted) {compPad.padYPos = compPad.AIForCompPad(ball.ballYPosition, height);}
         }
 }
