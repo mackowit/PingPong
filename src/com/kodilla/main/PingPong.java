@@ -1,4 +1,4 @@
-package com.kodilla;
+package com.kodilla.main;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -59,7 +59,6 @@ public class PingPong extends Application {
 
             //click on start
             canvas.setOnMouseClicked(e ->  gameStarted = true);
-            System.out.println(gameStarted);
         }
 
         private void run(GraphicsContext gc) {
@@ -90,9 +89,11 @@ public class PingPong extends Application {
             ball.ballYSpeed = ball.sceneTopBottomEdgesCollision(height);
 
             //3. collision with right and left edge of scene
-            if(gameStarted) gameStarted = ball.sceneLeftRightEdgesCollision(ball.ballXPosition, width, gameStarted);
+            if(gameStarted) gameStarted = ball.sceneLeftRightEdgesCollision(width);
 
             //simple AI for padComputer
-            if(gameStarted) {compPad.padYPos = compPad.AIForCompPad(ball.ballYPosition, height);}
+            if(gameStarted) {
+                compPad.padYPos = compPad.AIForCompPad(ball.ballYPosition, height);
+            }
         }
 }

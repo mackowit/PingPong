@@ -1,4 +1,4 @@
-package com.kodilla;
+package com.kodilla.main;
 
 public class Pad {
     double padHeight;
@@ -14,12 +14,16 @@ public class Pad {
     }
 
     public double AIForCompPad(double ballYPosition, int height) {
-         if(ballYPosition < height - padHeight) {
+         if(ballYPosition < (height - padHeight)) {
              if (padYPos - ballYPosition > 200) padYPos -= 2;
              else if (padYPos - ballYPosition > 0) padYPos -= 4;
              else if (padYPos - ballYPosition < -200) padYPos += 2;
              else if (padYPos - ballYPosition < 0) padYPos += 4;
             }
          return padYPos;
+    }
+
+    public double getPadYPos() {
+        return padYPos;
     }
 }
