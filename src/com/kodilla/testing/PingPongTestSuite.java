@@ -148,7 +148,7 @@ public class PingPongTestSuite {
         //Given
         Ball testBall = new Ball(-2, 1, 5, -1, 100);
         //When
-        boolean gameStartedResult = testBall.sceneLeftRightEdgesCollision(width);
+        boolean gameStartedResult = testBall.sceneLeftEdgeCollision();
         //Then
         Assert.assertFalse(gameStartedResult);
     }
@@ -159,7 +159,7 @@ public class PingPongTestSuite {
         //Given
         Ball testBall = new Ball(-2, 1, 5, 711, 100);
         //When
-        boolean gameStartedResult = testBall.sceneLeftRightEdgesCollision(width);
+        boolean gameStartedResult = testBall.sceneRightEdgeCollision(width);
         //Then
         Assert.assertFalse(gameStartedResult);
     }
@@ -170,7 +170,7 @@ public class PingPongTestSuite {
         //Given
         Ball testBall = new Ball(-2, 1, 5, 1, 100);
         //When
-        boolean gameStartedResult = testBall.sceneLeftRightEdgesCollision(width);
+        boolean gameStartedResult = testBall.sceneLeftEdgeCollision();
         //Then
         Assert.assertTrue(gameStartedResult);
     }
@@ -181,7 +181,7 @@ public class PingPongTestSuite {
         //Given
         Ball testBall = new Ball(-2, 1, 5, 709, 100);
         //When
-        boolean gameStartedResult = testBall.sceneLeftRightEdgesCollision(width);
+        boolean gameStartedResult = testBall.sceneRightEdgeCollision(width);
         //Then
         Assert.assertTrue(gameStartedResult);
     }

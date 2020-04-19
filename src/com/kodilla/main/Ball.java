@@ -46,7 +46,12 @@ public class Ball {
         return ballYSpeed;
     }
 
-    public boolean sceneLeftRightEdgesCollision(int width) {
-        return (ballXPosition >= 0 && ballXPosition <= (width - ballRadius * 2));
+    public boolean sceneLeftEdgeCollision() {
+        return (ballXPosition >= 0); //&& ballXPosition <= (width - ballRadius * 2));
+    }
+
+    public boolean sceneRightEdgeCollision(int width) {
+        //return (ballXPosition >= 0 &&
+        return (ballXPosition <= (width - ballRadius * 2));
     }
 }

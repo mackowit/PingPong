@@ -3,12 +3,17 @@ package com.kodilla.main;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -18,6 +23,7 @@ public class PingPong extends Application {
         int width = 720;
         int height = 480;
         boolean gameStarted = false;
+        Score score = new Score();
 
 
         //initializing ball and pads objects
@@ -31,6 +37,19 @@ public class PingPong extends Application {
 
         @Override
         public void start(Stage primaryStage) throws Exception {
+            VBox vBox = new VBox();
+            Scene scene = new Scene(vBox);
+            score.playerPts = 0;
+            score.compPts = 0;
+
+            //menubar
+            MenuBar menuBar = new MenuBar();
+            Menu menuFile = new Menu("File");
+            Menu menuEdit = new Menu("Edit");
+            Menu menuView = new Menu("View");
+            menuBar.getMenus().addAll(menuFile, menuEdit, menuView);
+            ((VBox) scene.getRoot()).getChildren().addAll(menuBar);
+
             Canvas canvas = new Canvas(width, height);
             GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -40,10 +59,20 @@ public class PingPong extends Application {
 
             StackPane pane = new StackPane(canvas);
             pane.setBackground(background);
+            vBox.getChildren().add(pane);
 
-            Scene scene = new Scene(pane);
+            //label with score
+            Label label = new Label();
+            label.setTextFill(Color.DEEPSKYBLUE);
+            label.setOpacity(0.500);
+            label.setFont(Font.font("Arial", 100));
+            pane.getChildren().add(label);
+
             //initializing move
-            Timeline tLine = new Timeline(new KeyFrame(Duration.millis(10), e -> run(gc)));
+            Timeline tLine = new Timeline(new KeyFrame(Duration.millis(10), e -> {
+                score = run(gc, score);
+                label.setText(Integer.toString(score.playerPts) + " : " + Integer.toString(score.compPts));
+            }));
             tLine.setCycleCount(Timeline.INDEFINITE);
 
             primaryStage.setTitle("Ping Pong");
@@ -61,7 +90,7 @@ public class PingPong extends Application {
             canvas.setOnMouseClicked(e ->  gameStarted = true);
         }
 
-        private void run(GraphicsContext gc) {
+        private Score run(GraphicsContext gc, Score score) {
             //clearing the scene
             gc.clearRect(0, 0, width, height);
             //setting all shapes color
@@ -89,11 +118,23 @@ public class PingPong extends Application {
             ball.ballYSpeed = ball.sceneTopBottomEdgesCollision(height);
 
             //3. collision with right and left edge of scene
-            if(gameStarted) gameStarted = ball.sceneLeftRightEdgesCollision(width);
+            /*if(gameStarted) gameStarted = ball.sceneLeftEdgeCollision();
+            else if(gameStarted) gameStarted = ball.sceneRightEdgeCollision(width);*/
+            if(gameStarted) {
+                if(!ball.sceneLeftEdgeCollision()) {
+                    gameStarted = false;
+                    score.compPts++;
+                }
+                else if (!ball.sceneRightEdgeCollision(width)) {
+                    gameStarted = false;
+                    score.playerPts++;
+                }
+            }
 
             //simple AI for padComputer
             if(gameStarted) {
                 compPad.padYPos = compPad.AIForCompPad(ball.ballYPosition, height);
             }
+        return score;
         }
 }
