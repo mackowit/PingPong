@@ -14,8 +14,11 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -37,9 +40,10 @@ public class PingPong extends Application {
         boolean gameInitialized = false; //first initialisation of game flag
         boolean gameStarted = false; //resuming game after score/lose with initial ball position
         boolean gamePaused = false; //resuming after pause with remembered ball position
-        Score score = new Score(0, 0, 1);
+        Score score = new Score(0, 0);
         double pausedBallXPosition;
         double pausedBallYPosition;
+        String levelDisplay = "1";
 
         //initializing ball and pads objects
         Ball ball = new Ball(2, 1, 5, 360, 240);
@@ -107,13 +111,9 @@ public class PingPong extends Application {
 
                 score = run(gc, score);
 
-                //enabling menubar
-                if(gameStarted && !gamePaused) menuBar.setDisable(true);
-                else menuBar.setDisable(false);
-
                 //displaying the score
                 scoreLabel.setText(Integer.toString(score.playerPts) + " : " + Integer.toString(score.compPts));
-                levelLabel.setText("Level " + score.level);
+                levelLabel.setText("Level " + levelDisplay);
 
                 //displaying info after scoring or pausing
                 if (gamePaused) {
@@ -129,9 +129,9 @@ public class PingPong extends Application {
                     infoLabel.setVisible(false);
                 }
 
+                //pausing
                 if(gameInitialized && gameStarted) {
                     pauseLabel.setVisible(true);
-                    //pausing
                     if (!gamePaused) {
                         pausedBallXPosition = ball.ballXPosition;
                         pausedBallYPosition = ball.ballYPosition;
@@ -214,13 +214,13 @@ public class PingPong extends Application {
                 if(!ball.sceneLeftEdgeCollision()) {
                     gameStarted = false;
                     score.compPts++;
-                    if(score.compPts%2 == 0 && score.compPts!=0) {
+                    /*if(score.compPts%2 == 0 && score.compPts!=0) {
                         if(ball.ballYSpeed > 0) ball.ballYSpeed+=0.5;
                         else ball.ballYSpeed-=0.5;
                         if(ball.ballXSpeed > 0) ball.ballXSpeed+=0.5;
                         else ball.ballXSpeed-=0.5;
                         score.level++;
-                    }
+                    }*/
                 }
                 else if (!ball.sceneRightEdgeCollision(width)) {
                     gameStarted = false;
@@ -252,11 +252,43 @@ public class PingPong extends Application {
             });
             menuFile.getItems().addAll(newGame);
 
+            Menu setLevel = new Menu("Set level");
+            MenuItem setLevel_1 = new MenuItem("Level 1");
+            setLevel_1.setOnAction(e -> {
+                ball.ballXSpeed = Math.signum(ball.ballXSpeed)*2;
+                ball.ballYSpeed = Math.signum(ball.ballYSpeed)*1;
+                levelDisplay = "1";
+            });
+            MenuItem setLevel_2 = new MenuItem("Level 2");
+            setLevel_2.setOnAction(e -> {
+                ball.ballXSpeed = Math.signum(ball.ballXSpeed)*2.5;
+                ball.ballYSpeed = Math.signum(ball.ballYSpeed)*1.5;
+                levelDisplay = "2";
+            });
+            MenuItem setLevel_3 = new MenuItem("Level 3");
+            setLevel_3.setOnAction(e -> {
+                ball.ballXSpeed = Math.signum(ball.ballXSpeed)*3;
+                ball.ballYSpeed = Math.signum(ball.ballYSpeed)*2;
+                levelDisplay = "3";
+            });
+            MenuItem setLevel_4 = new MenuItem("Level 4");
+            setLevel_4.setOnAction(e -> {
+                ball.ballXSpeed = Math.signum(ball.ballXSpeed)*3.5;
+                ball.ballYSpeed = Math.signum(ball.ballYSpeed)*2.5;
+                levelDisplay = "4";
+            });
+            MenuItem setLevel_5 = new MenuItem("Level 5");
+            setLevel_5.setOnAction(e -> {
+                ball.ballXSpeed = Math.signum(ball.ballXSpeed)*4;
+                ball.ballYSpeed = Math.signum(ball.ballYSpeed)*3;
+                levelDisplay = "5";
+            });
+            setLevel.getItems().addAll(setLevel_1, setLevel_2, setLevel_3, setLevel_4, setLevel_5);
+            menuFile.getItems().add(setLevel);
+
             MenuItem bestResults = new MenuItem("Best results");
             bestResults.setOnAction(e -> {
                 List<Score> ranking = resultsFromFile();
-                ranking.stream()
-                        .forEach(System.out::println);
                 Stage bestResultsPopUp = new Stage();
                 bestResultsPopUp.setTitle("Best results");
                 Label bestResultsLabel = new Label();
@@ -285,7 +317,26 @@ public class PingPong extends Application {
 
             MenuItem aboutGame = new MenuItem("About game");
             aboutGame.setOnAction(e -> {
-
+                Stage aboutGamePopUp = new Stage();
+                aboutGamePopUp.setTitle("About game");
+                Label gameInfoLabel = new Label();
+                gameInfoLabel.setTextFill(Color.DEEPSKYBLUE);
+                gameInfoLabel.setFont(Font.font("Arial", 15));
+                gameInfoLabel.setText("Ping Pong \n\n" +
+                        "Created in April 2020 by mackowit \n\n" +
+                        "during Kodilla Java Plus Course");
+                gameInfoLabel.setTextAlignment(TextAlignment.CENTER);
+                Button closeButton = new Button("Close");
+                closeButton.setOnAction(b -> aboutGamePopUp.close());
+                VBox layout= new VBox();
+                layout.setAlignment(Pos.CENTER);
+                gameInfoLabel.setAlignment(Pos.TOP_CENTER);
+                closeButton.setAlignment(Pos.BOTTOM_CENTER);
+                layout.setSpacing(20);
+                layout.getChildren().addAll(gameInfoLabel, closeButton);
+                Scene scene1= new Scene(layout, 300, 250);
+                aboutGamePopUp.setScene(scene1);
+                aboutGamePopUp.showAndWait();
             });
             menuView.getItems().addAll(aboutGame);
 
@@ -297,17 +348,17 @@ public class PingPong extends Application {
 
             try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND))
             {
-                writer.append("player: " + score.playerPts + ", computer: " + score.compPts + ", level: " + score.level + System.lineSeparator());
+                writer.append("player: " + score.playerPts + ", computer: " + score.compPts + System.lineSeparator());
             } catch (IOException e) {
                 System.out.println("Wystąpił błąd zapisu: " + e);
             }
         }
 
         private Score fileLineConverter(String fileLine) {
-            Pattern pattern = Pattern.compile("player: (\\d+), computer: (\\d+), level: (\\d+)");
+            Pattern pattern = Pattern.compile("player: (\\d+), computer: (\\d+)");
             Matcher matcher = pattern.matcher(fileLine);
             if (matcher.matches()) {
-                return new Score(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3)));
+                return new Score(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
             } else return null;
         }
 
@@ -325,27 +376,27 @@ public class PingPong extends Application {
 
             List<Score> results = fromFile.stream()
                     .map(line -> fileLineConverter(line))
+                    .sorted(Comparator.comparingInt(Score::getPtsDiff).reversed())
                     .collect(Collectors.toList());
 
-            List<Score> sortedResults = results.stream()
-                    .sorted(Comparator.comparingInt(Score::getPtsDiff)
-                    .reversed())
-                    .collect(Collectors.toList());
-
-            return sortedResults;
+            return results;
         }
 
         private String rankingListToText(List<Score> scoreList) {
             String rankingText = "";
             if(scoreList.size() >= 5) {
+                System.out.println(">5");
                 for (int i = 0; i < 5; i++) {
                     rankingText += "" + (i + 1) + ". " + scoreList.get(i).playerPts + " : " + scoreList.get(i).compPts + "\n\n";
                 }
+                return rankingText;
+            } else if(scoreList.size() == 0) {
+                return "Ranking list is empty";
             } else {
                 for (int i = 0; i < scoreList.size(); i++) {
                     rankingText += "" + (i + 1) + ". " + scoreList.get(i).playerPts + " : " + scoreList.get(i).compPts + "\n\n";
                 }
+                return rankingText;
             }
-            return rankingText;
         }
 }
